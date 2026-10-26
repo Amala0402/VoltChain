@@ -1,0 +1,21 @@
+{
+  "name": "blockchain-energy-sharing",
+  "version": "1.0.0",
+  "description": "Blockchain-Based Energy Sharing Between Households with Proof-of-Authority (PoA) Consensus, Smart Contracts, and Smart Meter Oracles",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "blockchain",
+    "energy-sharing",
+    "microgrid",
+    "proof-of-authority",
+    "smart-contracts",
+    "p2p-trading",
+    "oracle"
+  ],
+  "author": "Antigravity Engineering",
+  "license": "MIT"
+}

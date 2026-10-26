@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoltChain - Blockchain Energy Sharing Platform</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Header / Navigation -->
+  <header class="app-header">
+    <div class="header-left">
+      <div class="brand-logo">
+        <span class="logo-icon">⚡</span>
+        <div class="logo-text">
+          <h1>VoltChain <span class="tag-badge">P2P Microgrid</span></h1>
+          <p class="subtitle">Blockchain-Based Energy Sharing Between Households</p>
+        </div>
+      </div>
+      <div class="network-status-badge" id="networkBadge">
+        <span class="status-dot pulse-green"></span>
+        <span class="status-name">Consortium PoA Network</span>
+        <span class="status-freq" id="headerFreq">50.01 Hz</span>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <!-- Actor / Persona Switcher -->
+      <div class="actor-picker-wrapper">
+        <label for="actorSelect" class="actor-label">Active Actor / Role:</label>
+        <div class="select-container">
+          <select id="actorSelect" class="actor-select">
+            <option value="HOUSEHOLD_A">☀️ Household A (Solar Producer)</option>
+            <option value="HOUSEHOLD_B">🔌 Household B (Consumer)</option>
+            <option value="HOUSEHOLD_C">🔋 Household C (Prosumer & Battery)</option>
+            <option value="GRID_OPERATOR">⚡ Grid Operator (PoA Validator #04)</option>
+            <option value="ADMIN">🛡️ Network Admin (Auditor)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Actor Wallet & Balance Pill -->
+      <div class="wallet-pill" id="walletPill">
+        <div class="wallet-avatar" id="actorAvatar">☀️</div>
+        <div class="wallet-info">
+          <span class="wallet-name" id="actorName">Household A</span>
+          <span class="wallet-balance" id="actorBalance">$420.50</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Global Metrics Ribbon -->
+  <section class="metrics-ribbon">
+    <div class="metric-card">
+      <div class="metric-icon">🔋</div>
+      <div class="metric-content">
+        <span class="metric-label">Total Energy Shared</span>
+        <span class="metric-value" id="metricTotalEnergy">0.00 <span class="unit">kWh</span></span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">📜</div>
+      <div class="metric-content">
+        <span class="metric-label">Active Energy Offers</span>
+        <span class="metric-value" id="metricActiveOffers">0</span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">🧱</div>
+      <div class="metric-content">
+        <span class="metric-label">Blockchain Height</span>
+        <span class="metric-value" id="metricBlockHeight">0 <span class="unit">Blocks</span></span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">⏳</div>
+      <div class="metric-content">
+        <span class="metric-label">Pending Mempool</span>
+        <span class="metric-value" id="metricPendingTx">0 <span class="unit">txs</span></span>
+      </div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-icon">🛡️</div>
+      <div class="metric-content">
+        <span class="metric-label">PoA Validator Node</span>
+        <span class="metric-value small-text" id="metricValidator">Substation #04</span>
+      </div>
+    </div>
+    <div class="metric-card highlight-green">
+      <div class="metric-icon">💰</div>
+      <div class="metric-content">
+        <span class="metric-label">Avg P2P Rate vs Utility</span>
+        <span class="metric-value">$0.13 <span class="unit">vs $0.24/kWh</span></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Chain Health Alert Banner (Appears when tampered or healthy) -->
+  <div id="chainHealthBanner" class="chain-banner chain-healthy">
+    <span class="banner-icon" id="bannerIcon">✅</span>
+    <span class="banner-text" id="bannerText">Proof of Authority Blockchain Integrity: 100% Cryptographically Valid</span>
+    <button class="btn btn-sm btn-outline-white" id="btnVerifyChain">Run Full Audit</button>
+  </div>
+
+  <!-- Navigation Tabs -->
+  <nav class="main-tabs">
+    <button class="tab-btn active" data-tab="tab-marketplace">
+      <span class="tab-icon">🛒</span> P2P Marketplace
+    </button>
+    <button class="tab-btn" data-tab="tab-microgrid">
+      <span class="tab-icon">🗺️</span> Microgrid Flow Visualizer
+    </button>
+    <button class="tab-btn" data-tab="tab-oracle">
+      <span class="tab-icon">🛰️</span> Smart Meter & Oracle
+    </button>
+    <button class="tab-btn" data-tab="tab-contracts">
+      <span class="tab-icon">📜</span> Smart Contracts
+    </button>
+    <button class="tab-btn" data-tab="tab-consensus">
+      <span class="tab-icon">⚡</span> PoA Consensus & Mempool
+      <span class="badge-count" id="mempoolBadge">0</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-explorer">
+      <span class="tab-icon">🔍</span> Block Explorer & Ledger
+    </button>
+    <button class="tab-btn" data-tab="tab-security">
+      <span class="tab-icon">🛡️</span> Security Lab & Tamper Demo
+    </button>
+    <button class="tab-btn" data-tab="tab-architecture">
+      <span class="tab-icon">📐</span> Architecture & Guide
+    </button>
+  </nav>
+
+  <!-- MAIN TAB CONTENT CONTAINER -->
+  <main class="content-wrapper">
+
+    <!-- ======================================================== -->
+    <!-- TAB 1: P2P ENERGY MARKETPLACE -->
+    <!-- ======================================================== -->
+    <section id="tab-marketplace" class="tab-panel active">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Peer-to-Peer Energy Marketplace</h2>
+          <p class="panel-desc">Trade surplus rooftop solar and clean energy directly with neighboring households via automated smart contract escrow.</p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-primary" id="btnOpenCreateOffer">
+            <span>+</span> Create Energy Offer
+          </button>
+        </div>
+      </div>
+
+      <!-- Marketplace Filter & Stats Row -->
+      <div class="market-controls">
+        <div class="search-filter-group">
+          <label>Filter Energy Source:</label>
+          <select id="filterSource" class="form-input form-select">
+            <option value="ALL">All Clean Sources</option>
+            <option value="Solar">Solar PV Rooftop</option>
+            <option value="Battery">Solar + Battery Storage</option>
+          </select>
+        </div>
+        <div class="oracle-price-indicator">
+          <span>🌿 Grid Green Energy Saving: <strong>~45% Cheaper</strong> than traditional utility monopoly rates</span>
+        </div>
+      </div>
+
+      <!-- Energy Offers Grid -->
+      <div class="offers-grid" id="offersGrid">
+        <!-- Rendered dynamically by app.js -->
+        <div class="loading-spinner">Loading available energy offers...</div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 2: MICROGRID FLOW VISUALIZER -->
+    <!-- ======================================================== -->
+    <section id="tab-microgrid" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Microgrid Power Flow & Feeder Network</h2>
+          <p class="panel-desc">Real-time dynamic visualization of power transfers, feeder transmission lines, and grid frequency stabilization.</p>
+        </div>
+        <div class="live-legend">
+          <span class="legend-item"><span class="dot-solar"></span> Solar Generation</span>
+          <span class="legend-item"><span class="dot-flow"></span> Active P2P Trade</span>
+          <span class="legend-item"><span class="dot-grid"></span> Substation Feed</span>
+        </div>
+      </div>
+
+      <div class="microgrid-canvas-container">
+        <!-- SVG Microgrid schematic with animated pulse flows -->
+        <svg id="microgridSvg" viewBox="0 0 960 480" class="microgrid-svg">
+          <!-- Connection lines (Feeders) -->
+          <line x1="200" y1="120" x2="480" y2="240" class="wire-base" />
+          <line x1="760" y1="120" x2="480" y2="240" class="wire-base" />
+          <line x1="300" y1="380" x2="480" y2="240" class="wire-base" />
+          <line x1="660" y1="380" x2="480" y2="240" class="wire-base" />
+          <line x1="200" y1="120" x2="760" y2="120" class="wire-base p2p-line" />
+
+          <!-- Animated energy flow pulses -->
+          <line x1="200" y1="120" x2="760" y2="120" class="wire-pulse flow-active" id="pulseAtoB" />
+          <line x1="300" y1="380" x2="480" y2="240" class="wire-pulse flow-substation" id="pulseCtoSub" />
+
+          <!-- Center: Municipal Substation & PoA Validator -->
+          <g class="grid-node center-node" transform="translate(480, 240)">
+            <circle r="46" class="node-circle substation-circle" />
+            <text y="-8" text-anchor="middle" class="node-icon">⚡</text>
+            <text y="14" text-anchor="middle" class="node-title">Municipal Substation</text>
+            <text y="28" text-anchor="middle" class="node-sub">PoA Validator Node #04</text>
+          </g>
+
+          <!-- Household A (Solar Producer) -->
+          <g class="grid-node" transform="translate(200, 120)">
+            <circle r="42" class="node-circle producer-circle" />
+            <text y="-6" text-anchor="middle" class="node-icon">☀️</text>
+            <text y="14" text-anchor="middle" class="node-title">Household A</text>
+            <text y="28" text-anchor="middle" class="node-sub">Solar Producer (6.5kW)</text>
+          </g>
+
+          <!-- Household B (Consumer) -->
+          <g class="grid-node" transform="translate(760, 120)">
+            <circle r="42" class="node-circle consumer-circle" />
+            <text y="-6" text-anchor="middle" class="node-icon">🔌</text>
+            <text y="14" text-anchor="middle" class="node-title">Household B</text>
+            <text y="28" text-anchor="middle" class="node-sub">Energy Consumer</text>
+          </g>
+
+          <!-- Household C (Prosumer & Battery) -->
+          <g class="grid-node" transform="translate(300, 380)">
+            <circle r="42" class="node-circle prosumer-circle" />
+            <text y="-6" text-anchor="middle" class="node-icon">🔋</text>
+            <text y="14" text-anchor="middle" class="node-title">Household C</text>
+            <text y="28" text-anchor="middle" class="node-sub">Prosumer + 13.5kWh Batt</text>
+          </g>
+
+          <!-- Community Storage Reserve -->
+          <g class="grid-node" transform="translate(660, 380)">
+            <circle r="42" class="node-circle storage-circle" />
+            <text y="-6" text-anchor="middle" class="node-icon">🏬</text>
+            <text y="14" text-anchor="middle" class="node-title">Microgrid Reserve</text>
+            <text y="28" text-anchor="middle" class="node-sub">Community Battery Bank</text>
+          </g>
+        </svg>
+
+        <div class="flow-telemetry-hud">
+          <div class="hud-item">
+            <span class="hud-label">Feeder Frequency</span>
+            <span class="hud-val" id="hudFreq">50.01 Hz</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Line Voltage</span>
+            <span class="hud-val">230.4 V</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Microgrid Active P2P Load</span>
+            <span class="hud-val" id="hudActiveLoad">4.8 kW</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">Technical Transmission Loss</span>
+            <span class="hud-val">1.2% (Local Feeder)</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 3: SMART METER & ORACLE SIMULATOR -->
+    <!-- ======================================================== -->
+    <section id="tab-oracle" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Smart Meter & IoT Oracle Engine</h2>
+          <p class="panel-desc">Oracles feed off-chain IoT meter readings, solar irradiance, and appliance consumption into smart contracts for automated validation.</p>
+        </div>
+        <div class="weather-controls">
+          <span class="weather-label">Simulate Weather Oracle:</span>
+          <div class="btn-group" id="weatherBtnGroup">
+            <button class="btn btn-sm btn-weather active" data-weather="SUNNY">☀️ Sunny (100%)</button>
+            <button class="btn btn-sm btn-weather" data-weather="PARTLY_CLOUDY">⛅ Partly Cloudy (60%)</button>
+            <button class="btn btn-sm btn-weather" data-weather="OVERCAST">☁️ Overcast (20%)</button>
+            <button class="btn btn-sm btn-weather" data-weather="NIGHT">🌙 Night (0%)</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Household Smart Meters Cards Grid -->
+      <div class="meters-container" id="metersContainer">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <!-- Oracle Stream Log -->
+      <div class="oracle-log-box">
+        <div class="oracle-log-header">
+          <h3>🛰️ Real-Time Oracle Feed Ingestion (Cryptographically Signed Feeds)</h3>
+          <span class="badge-tag">SHA-256 Oracle Attestation</span>
+        </div>
+        <div class="log-stream" id="oracleLogStream">
+          <div class="log-item">Connecting to IoT Smart Meter Gateway...</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 4: SMART CONTRACTS & EXECUTION SANDBOX -->
+    <!-- ======================================================== -->
+    <section id="tab-contracts" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Energy Smart Contracts & Execution Logic</h2>
+          <p class="panel-desc">Autonomous on-chain programs governing trading, balance checks, payment escrow, and peer-to-peer settlement.</p>
+        </div>
+        <div class="contract-badge-wrapper">
+          <span class="badge-tag green">Contract Deployed: 0xCONTRACT_ENERGY_SHARING_POA_V1</span>
+        </div>
+      </div>
+
+      <div class="contracts-layout">
+        <!-- Left: Contract Code Viewer -->
+        <div class="contract-code-panel">
+          <div class="code-tabs">
+            <button class="code-tab-btn active" data-contract="trading">1. EnergyTradingContract.sol</button>
+            <button class="code-tab-btn" data-contract="txmgmt">2. EnergyTransactionManagement.sol</button>
+            <button class="code-tab-btn" data-contract="payment">3. PaymentManagement.sol</button>
+          </div>
+          <pre class="code-display"><code id="contractCodeBlock">// Select a contract above to inspect code</code></pre>
+        </div>
+
+        <!-- Right: Contract Events & Execution Console -->
+        <div class="contract-events-panel">
+          <h3>Live Smart Contract Event Logs</h3>
+          <p class="subtext">Emitted events on state changes (`EnergyOfferCreated`, `EnergyPurchased`, `EscrowSettled`)</p>
+          <div class="events-log-list" id="contractEventsList">
+            <div class="loading-spinner">Listening for smart contract events...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 5: PROOF-OF-AUTHORITY (PoA) CONSENSUS & MEMPOOL -->
+    <!-- ======================================================== -->
+    <section id="tab-consensus" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Proof-of-Authority (PoA) Consensus & Mempool</h2>
+          <p class="panel-desc">Authorized validator nodes evaluate rule compliance, verify signatures, and seal new blocks without energy-intensive mining.</p>
+        </div>
+        <div>
+          <button class="btn btn-success" id="btnMineMempool">
+            ⛏️ Forge / Mine Block (PoA)
+          </button>
+        </div>
+      </div>
+
+      <div class="consensus-grid">
+        <!-- Left: Pending Mempool -->
+        <div class="mempool-box">
+          <div class="box-header">
+            <h3>⏳ Pending Transaction Mempool (<span id="mempoolCount">0</span>)</h3>
+            <span class="subtext">Transactions waiting for validator signature & block inclusion</span>
+          </div>
+          <div class="mempool-list" id="mempoolList">
+            <div class="empty-state">Mempool is currently empty. Initiate a trade in the Marketplace to queue a transaction.</div>
+          </div>
+        </div>
+
+        <!-- Right: Authorized Validators & Consensus Details -->
+        <div class="validators-box">
+          <div class="box-header">
+            <h3>🛡️ Authorized Consortium Validators</h3>
+            <span class="subtext">Approved nodes permitted to seal blocks in this permissioned network</span>
+          </div>
+          <div class="validators-list" id="validatorsList">
+            <!-- Rendered dynamically -->
+          </div>
+
+          <div class="poa-explanation-box">
+            <h4>Why Proof-of-Authority (PoA) for Energy Sharing?</h4>
+            <ul>
+              <li><strong>Zero Energy Waste:</strong> Unlike Bitcoin's Proof of Work (PoW), PoA uses virtually zero electricity to validate blocks.</li>
+              <li><strong>Instant Finality:</strong> Authorized nodes (Grid Operators, Regional Energy Authority) provide sub-second transaction validation.</li>
+              <li><strong>Permissioned Trust:</strong> Perfect for community microgrids where participating nodes are legally bound and authorized.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 6: BLOCK EXPLORER & LEDGER -->
+    <!-- ======================================================== -->
+    <section id="tab-explorer" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Blockchain Ledger & Block Explorer</h2>
+          <p class="panel-desc">Immutable cryptographic chain of validated energy transfers with SHA-256 hashes, Merkle roots, and validator signatures.</p>
+        </div>
+        <div class="explorer-stats">
+          <span class="badge-tag">Total Blocks: <strong id="explorerBlockCount">0</strong></span>
+        </div>
+      </div>
+
+      <!-- Visual Chain Timeline -->
+      <div class="chain-timeline-wrapper">
+        <div class="chain-timeline" id="chainTimeline">
+          <!-- Rendered dynamically as connected block cards -->
+        </div>
+      </div>
+
+      <!-- Block Detail Modal / Inspector -->
+      <div class="block-inspector" id="blockInspector">
+        <div class="inspector-header">
+          <h3>Block Inspector Details</h3>
+          <span class="subtext">Click on any block in the chain above to inspect its cryptographic payload</span>
+        </div>
+        <div class="inspector-body" id="inspectorBody">
+          <div class="empty-state">Select a block above to view deep transaction logs, Merkle root, and PoA signature.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 7: SECURITY LAB & TAMPER DEMONSTRATION -->
+    <!-- ======================================================== -->
+    <section id="tab-security" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>Blockchain Security Lab & Tamper-Proofing Demonstrator</h2>
+          <p class="panel-desc">Test the cryptographic immutability of the blockchain by attempting an unauthorized alteration of past energy transactions.</p>
+        </div>
+        <div class="action-buttons">
+          <button class="btn btn-warning" id="btnRestoreChain">
+            🔄 Restore Canonical PoA Ledger
+          </button>
+        </div>
+      </div>
+
+      <div class="security-demo-grid">
+        <!-- Attack / Tamper Simulator Form -->
+        <div class="security-card">
+          <h3>Simulate Tamper Attack (Section 10 & 11)</h3>
+          <p class="subtext">Attempt to modify a recorded transaction in Block #1 (e.g. maliciously inflate energy received from 5.0 kWh to 999.0 kWh).</p>
+          
+          <div class="form-group">
+            <label>Target Block Index:</label>
+            <input type="number" id="tamperBlockIndex" class="form-input" value="1" min="1" max="10" />
+          </div>
+          <div class="form-group">
+            <label>Malicious Modified Energy Amount (kWh):</label>
+            <input type="number" id="tamperEnergyVal" class="form-input" value="999.0" />
+          </div>
+          <button class="btn btn-danger" id="btnSimulateTamper">
+            ⚠️ Attempt Malicious Ledger Alteration
+          </button>
+          
+          <div class="tamper-result-box" id="tamperResultBox">
+            <span class="status-indicator">Ready to simulate. Click above to test tamper resistance.</span>
+          </div>
+        </div>
+
+        <!-- Security Principles & Protections -->
+        <div class="security-card">
+          <h3>Security Aspects of the Architecture</h3>
+          <div class="security-items-list">
+            <div class="sec-item">
+              <span class="sec-icon">🔒</span>
+              <div>
+                <strong>Tamper Resistance via SHA-256 Chaining</strong>
+                <p>Every block contains the exact cryptographic hash of the previous block. Altering any byte in Block #N invalidates the hash of all subsequent blocks #N+1, #N+2.</p>
+              </div>
+            </div>
+            <div class="sec-item">
+              <span class="sec-icon">🔑</span>
+              <div>
+                <strong>Role-Based Access Control (RBAC)</strong>
+                <p>Producers cannot forge consumer buys; consumers cannot create unauthorized generation offers; only vetted Grid Operators can forge PoA blocks.</p>
+              </div>
+            </div>
+            <div class="sec-item">
+              <span class="sec-icon">🛰️</span>
+              <div>
+                <strong>Oracle Attestation & Input Validation</strong>
+                <p>Smart meters digitally sign readings. Offers cannot be listed unless the smart meter verifies that solar generation actually produced the surplus.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ======================================================== -->
+    <!-- TAB 8: ARCHITECTURE & GUIDE -->
+    <!-- ======================================================== -->
+    <section id="tab-architecture" class="tab-panel">
+      <div class="panel-header-actions">
+        <div>
+          <h2>System Architecture & Comprehensive Project Guide</h2>
+          <p class="panel-desc">End-to-end specifications, consensus comparisons, and state machine transitions matching all 11 project sections.</p>
+        </div>
+      </div>
+
+      <!-- State Machine Stepper (Section 9) -->
+      <div class="arch-section">
+        <h3>1. End-to-End Energy Sharing State Machine (Section 1 & 9)</h3>
+        <p class="subtext">Click on any step below to see its exact function and execution trigger:</p>
+        
+        <div class="stepper-container">
+          <div class="step-card" data-step="1">
+            <span class="step-num">Step 1</span>
+            <h4>Solar Generation</h4>
+            <p>Household generates electricity via solar PV.</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card" data-step="2">
+            <span class="step-num">Step 2</span>
+            <h4>Energy Offer</h4>
+            <p>Producer creates offer with kWh and price.</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card" data-step="3">
+            <span class="step-num">Step 3</span>
+            <h4>Consumer Request</h4>
+            <p>Consumer buys offered energy on the marketplace.</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card" data-step="4">
+            <span class="step-num">Step 4</span>
+            <h4>Smart Contract Check</h4>
+            <p>Verifies surplus, permissions, and escrow funds.</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card" data-step="5">
+            <span class="step-num">Step 5</span>
+            <h4>PoA Validation</h4>
+            <p>Authorized validator node verifies and seals block.</p>
+          </div>
+          <div class="step-arrow">→</div>
+          <div class="step-card" data-step="6">
+            <span class="step-num">Step 6</span>
+            <h4>Blockchain Record</h4>
+            <p>Immutable block added to ledger; settled.</p>
+          </div>
+        </div>
+        <div class="step-detail-viewer" id="stepDetailViewer">
+          Click any step above to inspect its technical details.
+        </div>
+      </div>
+
+      <!-- Architecture Flow (Section 8) -->
+      <div class="arch-section">
+        <h3>2. Layered System Architecture (Section 8)</h3>
+        <div class="arch-layers">
+          <div class="arch-layer-card l1">
+            <span class="layer-badge">Actor Layer</span>
+            <h4>Energy Producer • Energy Consumer • Prosumer • Grid Operator • Admin</h4>
+            <p>Interact with the microgrid via responsive web dashboard with role-based credentials.</p>
+          </div>
+          <div class="arch-layer-arrow">↓</div>
+          <div class="arch-layer-card l2">
+            <span class="layer-badge">Frontend Web Application</span>
+            <h4>VoltChain Single-Page Interface & Real-time Canvas Visualizer</h4>
+            <p>Provides marketplace, smart meter telemetry HUD, and block explorer.</p>
+          </div>
+          <div class="arch-layer-arrow">↓</div>
+          <div class="arch-layer-card l3">
+            <span class="layer-badge">Backend / API & Oracle Layer</span>
+            <h4>REST API Gateway & Smart Meter IoT Oracle Feeds</h4>
+            <p>Supplies live weather, solar irradiance, and appliance consumption telemetry.</p>
+          </div>
+          <div class="arch-layer-arrow">↓</div>
+          <div class="arch-layer-card l4">
+            <span class="layer-badge">Energy Smart Contract Layer</span>
+            <h4>EnergyTrading • EnergyTxManagement • PaymentManagement</h4>
+            <p>Autonomous business rules, balance verification, and escrow settlement.</p>
+          </div>
+          <div class="arch-layer-arrow">↓</div>
+          <div class="arch-layer-card l5">
+            <span class="layer-badge">Consensus & Blockchain Layer</span>
+            <h4>Proof of Authority (PoA) Consortium Ledger</h4>
+            <p>Approved validator nodes seal SHA-256 blocks for immutable transaction history.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Blockchain Type Comparison (Section 2 & 5) -->
+      <div class="arch-section">
+        <h3>3. Blockchain & Consensus Comparison Matrix (Section 2 & 5)</h3>
+        <div class="table-responsive">
+          <table class="comparison-table">
+            <thead>
+              <tr>
+                <th>Blockchain Type</th>
+                <th>Access / Governance</th>
+                <th>Energy Consumption</th>
+                <th>Transaction Speed</th>
+                <th>Suitability for Energy Sharing</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="highlight-row">
+                <td><strong>Permissioned Consortium (VoltChain)</strong></td>
+                <td>Authorized energy organizations & grid operators</td>
+                <td>Ultra-low (Near 0 kWh)</td>
+                <td>Sub-second (High Throughput)</td>
+                <td>⭐️ <strong>Optimal Choice</strong>: Controlled, regulated, privacy-preserving.</td>
+              </tr>
+              <tr>
+                <td>Public Blockchain (e.g. Bitcoin PoW)</td>
+                <td>Open to everyone anonymous</td>
+                <td>Massive (Megawatt mining)</td>
+                <td>Slow (10-60 min finality)</td>
+                <td>Poor: High carbon footprint contradicts renewable energy goal.</td>
+              </tr>
+              <tr>
+                <td>Private Blockchain</td>
+                <td>Single company/entity</td>
+                <td>Very Low</td>
+                <td>High</td>
+                <td>Moderate: Lacks multi-institution trust among diverse neighbors.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Limitations & Real-world Mitigations (Section 10) -->
+      <div class="arch-section">
+        <h3>4. Project Limitations & Real-World Mitigations (Section 10)</h3>
+        <div class="limitations-grid">
+          <div class="limitation-card">
+            <h4>📈 Scalability</h4>
+            <p><strong>Limitation:</strong> Thousands of high-frequency smart meter readings could bloat the blockchain ledger.</p>
+            <p><strong>Mitigation:</strong> Batch multiple minute-interval meter readings into aggregated P2P settlement blocks.</p>
+          </div>
+          <div class="limitation-card">
+            <h4>🛰️ External Data / Oracle Trust</h4>
+            <p><strong>Limitation:</strong> Blockchain cannot guarantee if a faulty physical meter reports false solar readings.</p>
+            <p><strong>Mitigation:</strong> Cryptographic hardware-enforced smart meters with tamper-evident seals and cross-validation against regional weather satellites.</p>
+          </div>
+          <div class="limitation-card">
+            <h4>🔐 Key & Account Security</h4>
+            <p><strong>Limitation:</strong> Compromised household private keys allow unauthorized energy sales.</p>
+            <p><strong>Mitigation:</strong> Multi-signature authorization for large payouts and automated daily trading limits.</p>
+          </div>
+          <div class="limitation-card">
+            <h4>⚖️ Grid Physical Bottlenecks</h4>
+            <p><strong>Limitation:</strong> A P2P smart contract can clear a trade, but physical power lines must handle the current.</p>
+            <p><strong>Mitigation:</strong> Grid Operator nodes act as PoA validators, holding power to throttle trades if local transformers overheat.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODALS -->
+  <!-- ======================================================== -->
+
+  <!-- Modal: Create Energy Offer -->
+  <div class="modal-backdrop" id="modalCreateOffer">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Create New Energy Offer</h3>
+        <button class="modal-close" id="btnCloseCreateOffer">&times;</button>
+      </div>
+      <form id="formCreateOffer">
+        <div class="modal-body">
+          <div class="form-group">
+            <label>Seller / Producer:</label>
+            <input type="text" id="offerProducerDisplay" class="form-input" readonly value="Household A" />
+          </div>
+          <div class="form-group">
+            <label>Energy Source Type:</label>
+            <select id="offerSourceType" class="form-input form-select">
+              <option value="Solar PV Rooftop">☀️ Solar PV Rooftop</option>
+              <option value="Solar + Battery Storage">🔋 Solar + Battery Storage</option>
+              <option value="Micro-Wind Turbine">💨 Micro-Wind Turbine</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Available Energy to Share (kWh):</label>
+            <input type="number" id="offerEnergyKwh" class="form-input" min="0.5" max="100" step="0.5" value="10.0" required />
+            <span class="field-hint" id="offerOracleHint">Oracle Verified Live Net Surplus: 24.6 kWh</span>
+          </div>
+          <div class="form-group">
+            <label>Price per kWh ($ USD):</label>
+            <input type="number" id="offerPriceKwh" class="form-input" min="0.01" max="1.00" step="0.01" value="0.12" required />
+            <span class="field-hint">Utility standard rate is $0.24/kWh. Recommended: $0.10 - $0.16</span>
+          </div>
+          <div class="summary-box">
+            <div class="summary-row">
+              <span>Gross Potential Revenue:</span>
+              <strong id="offerGrossEst">$1.20</strong>
+            </div>
+            <div class="summary-row">
+              <span>5% Grid Maintenance Fee:</span>
+              <span id="offerGridFeeEst">$0.06</span>
+            </div>
+            <div class="summary-row highlight">
+              <span>Net Producer Earnings:</span>
+              <strong id="offerNetEst">$1.14</strong>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelCreateOffer">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btnSubmitOffer">Deploy to Smart Contract</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Buy Energy -->
+  <div class="modal-backdrop" id="modalBuyEnergy">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Purchase Clean Energy</h3>
+        <button class="modal-close" id="btnCloseBuyEnergy">&times;</button>
+      </div>
+      <form id="formBuyEnergy">
+        <input type="hidden" id="buyOfferId" />
+        <div class="modal-body">
+          <div class="buy-offer-summary" id="buyOfferSummary">
+            <!-- Filled dynamically -->
+          </div>
+          <div class="form-group">
+            <label>Amount of Energy to Purchase (kWh):</label>
+            <input type="number" id="buyAmountKwh" class="form-input" min="0.1" step="0.5" value="5.0" required />
+            <span class="field-hint" id="buyMaxHint">Maximum available: 18.5 kWh</span>
+          </div>
+          <div class="summary-box">
+            <div class="summary-row">
+              <span>Energy Cost:</span>
+              <strong id="buyEnergyCost">$0.60</strong>
+            </div>
+            <div class="summary-row">
+              <span>Grid Operator Balancing Fee (5%):</span>
+              <span id="buyGridFee">$0.03</span>
+            </div>
+            <div class="summary-row highlight">
+              <span>Total Payment (Escrowed):</span>
+              <strong id="buyTotalPayment">$0.60</strong>
+            </div>
+            <div class="summary-row">
+              <span>Buyer's Available Balance:</span>
+              <span id="buyConsumerBalance">$250.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" id="btnCancelBuyEnergy">Cancel</button>
+          <button type="submit" class="btn btn-success" id="btnSubmitBuy">Execute Smart Contract Trade</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notification Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="app.js"></script>
+</body>
+</html>
